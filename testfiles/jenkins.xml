@@ -1,0 +1,78 @@
+<hudson>
+    <assignedLabel></assignedLabel>
+    <mode>EXCLUSIVE</mode>
+    <nodeDescription>the master Jenkins node</nodeDescription>
+    <nodeName></nodeName>
+    <numExecutors>0</numExecutors>
+    <description>&lt;a href="http://www.apache.org/"&gt;&lt;img src="https://www.apache.org/images/asf_logo_wide.gif"&gt;&lt;/img&gt;&lt;/a&gt;
+        &lt;p&gt;
+        This is a public build and test server for &lt;a href="http://projects.apache.org/"&gt;projects&lt;/a&gt; of the
+        &lt;a href="http://www.apache.org/"&gt;Apache Software Foundation&lt;/a&gt;. All times on this server are UTC.
+        &lt;/p&gt;
+        &lt;p&gt;
+        See the &lt;a href="http://wiki.apache.org/general/Jenkins"&gt;Jenkins wiki page&lt;/a&gt; for more information
+        about this service.
+        &lt;/p&gt;</description>
+    <job>
+        <name>Abdera-trunk</name>
+        <url>https://builds.apache.org/job/Abdera-trunk/</url>
+        <color>blue</color>
+    </job>
+    <job>
+        <name>Abdera2-trunk</name>
+        <url>https://builds.apache.org/job/Abdera2-trunk/</url>
+        <color>blue</color>
+    </job>
+    <job>
+        <name>Accumulo-1.6</name>
+        <url>https://builds.apache.org/job/Accumulo-1.6/</url>
+        <color>blue</color>
+    </job>
+    <job>
+        <name>Accumulo-1.7</name>
+        <url>https://builds.apache.org/job/Accumulo-1.7/</url>
+        <color>blue</color>
+    </job>
+    <overallLoad></overallLoad>
+    <primaryView>
+        <name>Most Recent Builds</name>
+        <url>https://builds.apache.org/</url>
+    </primaryView>
+    <quietingDown>false</quietingDown>
+    <slaveAgentPort>2014</slaveAgentPort>
+    <unlabeledLoad></unlabeledLoad>
+    <useCrumbs>false</useCrumbs>
+    <useSecurity>true</useSecurity>
+    <view>
+        <name>All</name>
+        <url>https://builds.apache.org/view/All/</url>
+    </view>
+    <view>
+        <name>Groovy</name>
+        <url>https://builds.apache.org/view/Groovy/</url>
+    </view>
+    <view>
+        <name>Most Recent Builds</name>
+        <url>https://builds.apache.org/</url>
+    </view>
+    <view>
+        <name>Olingo</name>
+        <url>https://builds.apache.org/view/Olingo/</url>
+    </view>
+    <view>
+        <name>POI</name>
+        <url>https://builds.apache.org/view/POI/</url>
+    </view>
+    <view>
+        <name>PreCommit Builds</name>
+        <url>https://builds.apache.org/view/PreCommit%20Builds/</url>
+    </view>
+    <view>
+        <name>Tika</name>
+        <url>https://builds.apache.org/view/Tika/</url>
+    </view>
+    <view>
+        <name>XMLGraphics</name>
+        <url>https://builds.apache.org/view/XMLGraphics/</url>
+    </view>
+</hudson>

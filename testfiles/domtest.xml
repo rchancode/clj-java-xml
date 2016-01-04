@@ -1,0 +1,19 @@
+<contacts>
+
+  <contact id="1">
+     <!--- This is a comment -->
+     <name>Bob</name>
+     <phone>123</phone>
+     <phone>456</phone>
+     <email>fdsa@fdsaf.com</email>
+  </contact>
+
+  <contact>
+     <name>John</name>
+     <phone a='a'>123</phone>
+     <phone>456</phone>
+     <email>john@fdsaf.com</email>
+
+  </contact>
+
+</contacts>

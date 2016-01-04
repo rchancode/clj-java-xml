@@ -1,0 +1,29 @@
+<shopping>
+    <item id="A">
+      <name>milk
+      fdsa
+      fdsa</name>
+      <quantity>3</quantity>
+      <producer>
+        <country>USA</country>
+      </producer>
+    </item>
+    <item id="B">
+        <name>milky</name>
+        <quantity>2</quantity>
+        <producer>
+            <country>UK</country>
+        </producer>
+    </item>
+    <other id="C">
+        <name>C</name>
+    </other>
+
+    <other id="D">
+        <name>D</name>
+    </other>
+
+    <other id="E">
+        <name>E</name>
+    </other>
+</shopping>
