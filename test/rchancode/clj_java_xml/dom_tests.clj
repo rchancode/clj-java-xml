@@ -116,6 +116,12 @@
                         {javax.xml.transform.OutputKeys/OMIT_XML_DECLARATION "yes"}})))))
 
 
+(deftest emit-str-omit-declaration-for-character-data
+  (let [d (parse-text "<x><a>TEXTA</a></x>")]
+    (is (= "TEXTA"
+           (emit-str (select-first "/x/a/text()" d))))))
+
+
 (deftest invalid-emit-str-option
   (is (thrown? javax.xml.transform.TransformerConfigurationException
                  (emit-str (build-document "root" {} nil) {:features {"a" true}}))))
@@ -160,4 +166,6 @@
     (is (= "African Coffee Table" t2-text))))
 
 
-
+(deftest show-string-value
+  (let [d (parse-text "<a><b>TEXTB</b></a>")]
+    (is (= "<a><b>TEXTB</b></a>" (show d)))))

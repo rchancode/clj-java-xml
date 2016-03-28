@@ -42,9 +42,9 @@
        (throw e)))))
 
 (defn ^Schema xml-schema
-  "options
-  :schema-factory SchemaFactory
-  :error-handler  Error handler function"
+  "options is a map that can inlcude the following keys:
+  :schema-factory - javax.xml.validation.SchemaFactory instance to use.
+  :error-handler - error handler function."
   ([schema-source options]
    (let [^InputStream schema-stream (as-inputstream schema-source)
          ^SchemaFactory schema-factory (if-let [fac (:schema-factory options)]
@@ -93,20 +93,24 @@
 
 
 (defn ^Document parse
-  "options:
+  "Parse input into a Document.
 
-  :document-builder-factory
-  Overrides DocumentBuilderFactory. DocumentBuilderFactory might not be thread safe.
+  input is either a file URI string, a File or an InputStream.
 
-  :namespace-aware
-  true/false
+  options is a that include one or more of the following:
+  :document-builder-factory - overrides DocumentBuilderFactory.
+                              DocumentBuilderFactory might not be thread safe.
+  :schema - javax.xml.validation.Schema object or build a Schema object from anything
+            clojure.io/input-stream can convert from.
 
-  :schema
-  javax.xml.validation.Schema object or
-  build a Schema object from anything the clojure.io/input-stream can convert from.
-
-  :coalescing true/false
-  :ignoring-comments true/false
+  DocumentBuilderFactory options:
+  :namespace-aware - instructs the parser to be aware of namespaces. The value is true or false.
+  :coalescing - the value is either true or false.
+  :ignoring-comments - the value is either true or false.
+  :features  - a map of values to setFeature on DocumentFactory.
+  :ignoring-element-content-whitespace - either true or false.
+  :validating - either true or false.
+  :XInclude-aware - either true or false.
   "
   ([input]
    (parse input nil))
@@ -122,6 +126,10 @@
 
 
 (defn ^Document parse-text
+  "Parse a XML string into a Document.
+
+  See parse function.
+  "
   ([^String text options]
    (parse (string-as-inputstream text) options))
   ([^String text]
@@ -248,21 +256,29 @@
         ;; else
         nil)))
 
-;; Import if owner documents are different
-(defn insert-before! [^Node new-node ^Node target]
+(defn insert-before!
+  "Insert new-node before target node. If new-node is from a different document,
+  it and its subtree will be recursively imported to the target document."
+  [^Node new-node ^Node target]
   (if (= (.getOwnerDocument new-node) (.getOwnerDocument target))
     (.insertBefore (.getParentNode target) new-node target)
     (let [^Document d (.getOwnerDocument target)
           copied (.importNode d new-node true)]
       (insert-before! copied target))))
 
-(defn insert-after! [^Node new-node ^Node target]
+(defn insert-after!
+  "Insert new-node after target node. If new-node is from a different document,
+   it and its subtree will be recursively imported to the target document."
+  [^Node new-node ^Node target]
   (if (= (.getOwnerDocument new-node) (.getOwnerDocument target))
     (.insertBefore (.getParentNode target) new-node (.getNextSibling target))
     (let [copied (.importNode (.getOwnerDocument target) new-node true)]
       (insert-after! copied target))))
 
-(defn append-child! [^Node x ^Node y]
+(defn append-child!
+  "Appends node x to node y. If x is from a different document,
+   it and its subtree will be recursively imported to the target document."
+  [^Node x ^Node y]
   (let [^Node x' (if (= (.getNodeType x) Node/DOCUMENT_NODE)
                    (let [^Document d x ]
                      (.getDocumentElement d))
@@ -354,28 +370,47 @@
     (doseq [feature features]
       (.setFeature tf (first feature) (second feature)))))
 
+
+(defn- default-output-properties [^Node node]
+  (if (== Node/TEXT_NODE (.getNodeType node))
+    {OutputKeys/OMIT_XML_DECLARATION "yes"}
+    {}))
+
+(defn- emit-default-options [^Node node options]
+  (let [op (default-output-properties node)]
+    (assoc options :output-properties
+      (merge op (get options :output-properties)))))
+
 (defn emit!
-  ([^Document doc output]
-   (emit! doc output nil))
-  ([^Document doc output options]
-   (let [^TransformerFactory tFactory (if-let [fac (:transformer-factory options)]
+  ([^Node node output options]
+   (let [opts (emit-default-options node options)
+         ^TransformerFactory tFactory (if-let [fac (:transformer-factory opts)]
                                         fac
                                         (TransformerFactory/newInstance))
-         _ (set-transformer-factory-options! tFactory options)
+         _ (set-transformer-factory-options! tFactory opts)
          ^Transformer transformer (.newTransformer tFactory)
-         _ (set-transformer-options! transformer options)
-         ^DOMSource source (DOMSource. doc)
+         _ (set-transformer-options! transformer opts)
+         ^DOMSource source (DOMSource. node)
          ^StreamResult result (StreamResult. (as-outputstream output))]
-     (.transform transformer source result))))
+     (.transform transformer source result)))
+  ([^Node node output]
+   (emit! node output {})))
 
 (defn emit-str
-  ([^Document doc]
-   (emit-str doc nil))
-
-  ([^Document doc options]
+  ([^Node node]
+   (emit-str node nil))
+  ([^Node node options]
    (let [baos (ByteArrayOutputStream.)]
-     (emit! doc baos options)
+     (emit! node baos options)
      (String. (.toByteArray baos)))))
+
+(defn show
+  "Returns a string representation of a node omitting XML declaration.
+  This is useful for inspection and debugging."
+  [^Node node]
+  (emit-str node
+            {:output-properties
+             {OutputKeys/OMIT_XML_DECLARATION "yes"}}))
 
 
 ;; Short cuts
