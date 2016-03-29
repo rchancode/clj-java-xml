@@ -9,9 +9,6 @@ import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 import java.io.Writer;
 
-/**
- * Created by rchan on 11/11/15.
- */
 public class XMLPathEvent implements XMLEvent {
 
     private String path;
