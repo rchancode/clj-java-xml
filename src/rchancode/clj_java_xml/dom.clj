@@ -303,13 +303,13 @@
   (.appendChild current-node (.createCDATASection (.getOwnerDocument current-node) data)))
 
 (defn <_
-  ([ns-uri tag attrs add-content]
+  ([^String ns-uri ^String tag attrs add-content]
    (let [^Document d (if (instance? Document current-node)
                        current-node
                        (.getOwnerDocument current-node))
-         e (if (or (nil? ns-uri) (empty? ns-uri))
-             (.createElement d tag)
-             (.createElementNS d ns-uri tag))]
+         ^Element e (if (or (nil? ns-uri) (empty? ns-uri))
+                      (.createElement d tag)
+                      (.createElementNS d ns-uri tag))]
      (doseq [attr attrs]
        (cond
         (= (count attr) 2) (.setAttribute e (first attr) (second attr))
@@ -320,11 +320,18 @@
          (string? add-content) ($ add-content)
          (fn? add-content) (add-content)))))
 
-  ([tag attrs add-content]
-   (<_ nil tag attrs add-content)))
+  ([^String tag attrs add-content]
+   (<_ nil tag attrs add-content))
+
+  ([^String tag add-content]
+   (<_ nil tag nil add-content))
+
+  ([^String tag]
+   (<_ nil tag nil nil)))
 
 
 (defn ^Document build-document
+  "Builds a XML Document using builder functions."
   ([options ns-uri root-tag attrs add-content]
    (let [^DocumentBuilderFactory doc-factory (if-let [fac (:document-builder-factory options)]
                                               fac
@@ -342,11 +349,12 @@
   ([root-tag attrs add-content]
    (build-document {} nil root-tag attrs add-content)))
 
-
-(defmacro body [& body]
-  `(fn []
-     ~@body))
-
+(defn modify-node!
+  "Binds the given 'node' to 'current-node' dynamic var, allowing the use of builder functions,
+   such as '<_', in the given 'change-content' function."
+  [^Node node change-content]
+  (binding [^Node current-node node]
+    (change-content)))
 
 ;; Emit
 
@@ -418,4 +426,3 @@
 (def ?1 select-first)
 (def ?> select-elements)
 (def ?>1 select-first-element)
-

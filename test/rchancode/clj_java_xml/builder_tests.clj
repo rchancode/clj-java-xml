@@ -6,14 +6,14 @@
 (deftest output-xml
   (is (= "<?xml version=\"1.0\" encoding=\"UTF-8\"?><a id=\"a\"><b>TEXTB</b><b>TEXTB</b><c><!--comment--><![CDATA[cdata]]>Hello</c></a>"
          (build-xml-str
-          (body
-           (<? (body
+          (fn []
+           (<? (fn []
                 (<_ "a" {"id" "a"}
-                    (body
+                    (fn []
                      (dotimes [i 2]
                        (<_ "b""TEXTB"))
                      (<_ "c"
-                         (body
+                         (fn []
                           (<!-- "comment")
                           (<!CDATA "cdata")
                           ($ "Hello"))))))))))))
@@ -21,11 +21,11 @@
 (deftest output-xml-indented
   (is (= "<?xml version=\"1.1\" encoding=\"utf-16\"?>\n<a>\n  <b>TEXTB</b>\n  <b>TEXTB</b>\n</a>"
          (build-xml-str {:indent-str "  "}
-          (body
+          (fn []
            (<? "utf-16" "1.1"
-               (body
+               (fn []
                 (<_ "a"
-                    (body
+                    (fn []
                      (dotimes [i 2]
                        (<_ "b" "TEXTB")))))))))))
 
@@ -34,20 +34,18 @@
   (build-xml
     (clojure.java.io/writer "/tmp/testout.xml")
     {:indent-str "  "}
-    (body
-      (<? (body
+    (fn []
+      (<? (fn []
             (<_ "a" {}
-                (body
+                (fn []
                   (<_ "b" {} "TEXTB")))))))
 
   (build-xml-str
     {:indent-str "  "}
-    (body
+    (fn []
       (<? "utf-16" "1.1"
-          (body
+          (fn []
             (<_ "a" {}
-                (body
+                (fn []
                   (dotimes [i 2]
                     (<_ "b" {} "TEXTB")))))))))
-
-

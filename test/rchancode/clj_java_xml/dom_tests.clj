@@ -29,7 +29,6 @@
                (xml-schema "./testfiles/validation/note.xsd"
                            {:features {"unsupported" true}}))))
 
-
 (deftest valid-doc-with-schema
   (parse "./testfiles/validation/note.xml"
          {:schema (note-schema)
@@ -45,7 +44,6 @@
           :features {"http://apache.org/xml/features/validation/schema" false}
           :ignoring-element-content-whitespace true
           :XInclude-aware true}))
-
 
 (deftest invalid-doc
   (is (thrown? org.xml.sax.SAXException
@@ -96,13 +94,13 @@
            (->> (select (xpath "/a/*") d)
                 (map text))))))
 
-
 (deftest emit-str-indented
   (let [d (build-document
-           "x" {} (body
-                   (<_ "a" {}
-                       (body
-                        (<_ "b" {} "TEXTB")))))]
+            "x" {}
+            (fn []
+              (<_ "a"
+                  (fn []
+                    (<_ "b" "TEXTB")))))]
     (is (= "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n<x>\n  <a>\n    <b>TEXTB</b>\n  </a>\n</x>\n"
            (emit-str d {:indent 2})))))
 
@@ -110,7 +108,7 @@
 (deftest emit-str-omit-declaration
   (let [d (build-document "x" {}
                           (fn []
-                            (<_ "a" {} nil)))]
+                            (<_ "a")))]
     (is (= "<x><a/></x>"
            (emit-str d {:output-properties
                         {javax.xml.transform.OutputKeys/OMIT_XML_DECLARATION "yes"}})))))
@@ -133,15 +131,12 @@
                     "root" {}
                     (fn []
                       (<_ "a" {"id" "1"}
-                          (body
+                          (fn []
                            (<_ "c" {"id" "2"} "TEXTC")))
                       (<!-- "Comment")
-                      (<_ "b" {} (<!CDATA "cdata"))
+                      (<_ "b" (<!CDATA "cdata"))
                       (dotimes [i 2]
-                        ($ "Hello")
-                        )
-                      ))))))
-
+                        ($ "Hello"))))))))
 
 (deftest shortcuts-example
   (let [d (parse "./testfiles/contacts.xml")
@@ -169,3 +164,13 @@
 (deftest show-string-value
   (let [d (parse-text "<a><b>TEXTB</b></a>")]
     (is (= "<a><b>TEXTB</b></a>" (show d)))))
+
+(deftest modify-an-existing-node
+  (let [doc (parse-text "<a><b>TEXTB</b></a>")
+        b (select-first "/a/b" doc)]
+    (modify-node! b
+      (fn []
+        (<_ "c" {}
+            (fn []
+              (<_ "d" {} "TEXTD")))))
+    (is (= "<a><b>TEXTB<c><d>TEXTD</d></c></b></a>" (show doc)))))

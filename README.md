@@ -110,6 +110,17 @@ Or in the `ns` declaration:
          (fn []
            (<_ "b" {} "TEXTB"))))))
 
+;; Modifying a Node
+
+;; Produces <a><b>TEXTB<c><d>TEXTD</d></c></b></a>
+(let [doc (parse-text "<a><b>TEXTB</b></a>")
+      b (select-first "/a/b" doc)]
+  (modify-node! b
+    (fn []
+      (<_ "c" {}
+          (fn []
+            (<_ "d" {} "TEXTD"))))))
+
 ;; Outputing XML
 
 (emit-str example-doc)
@@ -141,11 +152,11 @@ Or in the `ns` declaration:
 ;; Generates an XML string with indenting
 (build-xml-str
  {:indent-str "  "} ;; indent-str is optional. If set, indents the output otherwise not.
- (body
+ (fn []
   (<? "utf-8" "1.0"  ;; If omitted, the encoding will be utf-8 and version will be 1.0
-      (body
+      (fn []
        (<_ "a" {"id" "1"}
-           (body
+           (fn []
             (dotimes [i 2]
               (<_ "b" "TEXTB"))))))))
 
@@ -154,10 +165,10 @@ Or in the `ns` declaration:
 (build-xml
  (clojure.java.io/writer "/tmp/testout.xml")
  {:indent-str "  "}
- (body
-  (<? (body
+ (fn []
+  (<? (fn []
        (<_ "a" {}
-           (body
+           (fn []
             (<_ "b" {} "TEXTB")))))))
 
 ```

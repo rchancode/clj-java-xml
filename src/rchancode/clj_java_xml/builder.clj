@@ -3,7 +3,6 @@
            [com.sun.xml.internal.txw2.output IndentingXMLStreamWriter]
            (java.io Writer StringWriter)))
 
-
 (def ^:dynamic ^XMLStreamWriter xml-writer nil)
 
 (defn build-xml [^Writer out-writer options content]
@@ -27,11 +26,6 @@
    (let [s (new StringWriter)]
      (build-xml s {} content)
      (str s))))
-
-
-(defmacro body [& body]
-  `(fn []
-     ~@body))
 
 (defn $ [^String text]
   (.writeCharacters xml-writer text))
