@@ -4,30 +4,35 @@
 
 
 (deftest output-xml
-  (is (= "<?xml version=\"1.0\" encoding=\"UTF-8\"?><a id=\"a\"><b>TEXTB</b><b>TEXTB</b><c><!--comment--><![CDATA[cdata]]>Hello</c></a>"
+  (is (= "<?xml version=\"1.0\" ?><a id=\"a\"><b>TEXTB</b><b>TEXTB</b><c><!--comment--><![CDATA[cdata]]>Hello</c></a>"
          (build-xml-str
-          (fn []
-           (<? (fn []
-                (<_ "a" {"id" "a"}
-                    (fn []
-                     (dotimes [i 2]
-                       (<_ "b""TEXTB"))
-                     (<_ "c"
-                         (fn []
-                          (<!-- "comment")
-                          (<!CDATA "cdata")
-                          ($ "Hello"))))))))))))
+           (fn []
+             (<?)
+             (<_ "a" {"id" "a"}
+                 (fn []
+                   (dotimes [i 2]
+                     (<_ "b" "TEXTB"))
+                   (<_ "c"
+                       (fn []
+                         (<!-- "comment")
+                         (<!CDATA "cdata")
+                         ($ "Hello"))))))))))
 
 (deftest output-xml-indented
   (is (= "<?xml version=\"1.1\" encoding=\"utf-16\"?>\n<a>\n  <b>TEXTB</b>\n  <b>TEXTB</b>\n</a>"
          (build-xml-str {:indent-str "  "}
-          (fn []
-           (<? "utf-16" "1.1"
-               (fn []
-                (<_ "a"
-                    (fn []
-                     (dotimes [i 2]
-                       (<_ "b" "TEXTB")))))))))))
+                        (fn []
+                          (<? "utf-16" "1.1")
+                          (<_ "a"
+                              (fn []
+                                (dotimes [i 2]
+                                  (<_ "b" "TEXTB"))))
+                          )))))
+
+(deftest output-valid-empty-root-element
+  (is (= "<a/>"
+         (build-xml-str
+           (fn [] (<_ "a"))))))
 
 
 (defn examples []
@@ -35,17 +40,17 @@
     (clojure.java.io/writer "/tmp/testout.xml")
     {:indent-str "  "}
     (fn []
-      (<? (fn []
-            (<_ "a" {}
-                (fn []
-                  (<_ "b" {} "TEXTB")))))))
+      (<?)
+      (<_ "a" {}
+          (fn []
+            (<_ "b" {} "TEXTB")))))
 
   (build-xml-str
     {:indent-str "  "}
     (fn []
-      (<? "utf-16" "1.1"
+      (<? "utf-16" "1.1")
+      (<_ "a" {}
           (fn []
-            (<_ "a" {}
-                (fn []
-                  (dotimes [i 2]
-                    (<_ "b" {} "TEXTB")))))))))
+            (dotimes [i 2]
+              (<_ "b" {} "TEXTB")))))))
+

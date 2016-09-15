@@ -76,7 +76,7 @@
 (deftest select-docs-with-namespaces
   (let [all-selected (->> (parse "./testfiles/domtest.xml")
                           (select (xpath "/contacts/contact[@id='1']"
-                                         {:namepaces {"a" "http://a"}})))
+                                         {:namespaces {"a" "http://a"}})))
         selected (-> all-selected first)]
     (is (= 1 (count all-selected)))
     (is (= "contact" (tag selected)))
@@ -174,3 +174,17 @@
             (fn []
               (<_ "d" {} "TEXTD")))))
     (is (= "<a><b>TEXTB<c><d>TEXTD</d></c></b></a>" (show doc)))))
+
+(deftest select-elements-from-document
+  (let [d (parse-text "<a><b>B1</b><b>B2</b><c>C1</c>A</a>")]
+    (is (= "A" (text d)))
+    (is (= "B1" (text (?>1 d))))
+    (is (= "B2" (text (second (?> d)))))
+    (is (= ["<b>B1</b>" "<b>B2</b>" "<c>C1</c>"] (map show (?> d))))
+    (is (= "C1" (text (?>1 "c" d))))
+    ))
+
+(deftest element-of-throws-IllegalArgumentException
+  (is (thrown? IllegalArgumentException
+              (element-of 1))))
+

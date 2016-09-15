@@ -147,30 +147,32 @@ Or in the `ns` declaration:
 (:require [rchancode.clj-java-xml.builder :refer :all])
 ```
 
+Generates an XML string with indenting
+
 ```clojure
 
-;; Generates an XML string with indenting
 (build-xml-str
  {:indent-str "  "} ;; indent-str is optional. If set, indents the output otherwise not.
  (fn []
-  (<? "utf-8" "1.0"  ;; If omitted, the encoding will be utf-8 and version will be 1.0
-      (fn []
-       (<_ "a" {"id" "1"}
-           (fn []
+  (<? "utf-8" "1.0")  ;; XML declaration.
+  (<_ "a" {"id" "1"}
+          (fn []
             (dotimes [i 2]
-              (<_ "b" "TEXTB"))))))))
+              (<_ "b" "TEXTB"))))))
 
-;; Writes to a file.
+```
 
+Writes XML to a file.
+
+```clojure
 (build-xml
  (clojure.java.io/writer "/tmp/testout.xml")
  {:indent-str "  "}
  (fn []
-  (<? (fn []
-       (<_ "a" {}
-           (fn []
-            (<_ "b" {} "TEXTB")))))))
-
+  (<?)
+  (<_ "a" {}
+          (fn []
+            (<_ "b" {} "TEXTB")))))
 ```
 
 ### XMLEvent Streaming Usage examples

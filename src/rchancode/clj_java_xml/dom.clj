@@ -213,6 +213,12 @@
    (when-let [item (.getNamedItemNS (.getAttributes element) namespaceURI name)]
      (.getNodeValue item))))
 
+(defn select-attr
+  ([^String name ^Element element]
+   (attr element name))
+  ([^String namespaceURI ^String name ^Element element]
+   (attr element namespaceURI name)))
+
 (defn tag [^Element element]
   (.getNodeName element))
 
@@ -224,20 +230,27 @@
 (defmethod content Element [^Element element]
   (NodeList-seq (.getChildNodes element)))
 
+(defn ^Element element-of [x]
+  (cond
+    (instance? Element x) x
+    (instance? Document x) (.getDocumentElement ^Document x)
+    :else
+    (throw (IllegalArgumentException. "x must be either an Element or a Document."))))
+
 (defn select-elements
-  ([^Element e]
-   (NodeList-seq (.getElementsByTagName e "*")))
-  ([^String tag ^Element e]
-   (NodeList-seq (.getElementsByTagName e tag)))
-  ([^String namespace-uri ^String tag ^Element e]
-   (NodeList-seq (.getElementsByTagNameNS e namespace-uri tag))))
+  ([e]
+   (NodeList-seq (.getElementsByTagName (element-of e) "*")))
+  ([^String tag e]
+   (NodeList-seq (.getElementsByTagName (element-of e) tag)))
+  ([^String namespace-uri ^String tag e]
+   (NodeList-seq (.getElementsByTagNameNS (element-of e) namespace-uri tag))))
 
 (defn select-first-element
-  ([^Element e]
+  ([e]
    (first (select-elements e)))
-  ([^String tag ^Element e]
+  ([^String tag e]
    (first (select-elements tag e)))
-  ([^String namespace-uri ^String tag ^Element e]
+  ([^String namespace-uri ^String tag e]
    (first (select-elements namespace-uri tag e))))
 
 (defn text [^Node node]
@@ -426,3 +439,4 @@
 (def ?1 select-first)
 (def ?> select-elements)
 (def ?>1 select-first-element)
+(def ?attr select-attr)

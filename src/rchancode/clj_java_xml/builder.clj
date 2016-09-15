@@ -15,6 +15,8 @@
                                 xtw)]
      (binding [^XMLStreamWriter xml-writer bxtw]
        (content)
+       (.writeEndDocument xml-writer)
+       (.flush xml-writer)
        (.close xml-writer))))
 
 (defn build-xml-str
@@ -62,10 +64,8 @@
    (.flush xml-writer)))
 
 (defn <?
-  ([^String encoding ^String version content]
-   (.writeStartDocument xml-writer encoding version)
-   (content)
-   (.writeEndDocument xml-writer))
-  ([content]
-   (<? "UTF-8" "1.0" content)))
+  ([^String encoding ^String version]
+   (.writeStartDocument xml-writer encoding version))
+  ([]
+   (.writeStartDocument xml-writer)))
 
