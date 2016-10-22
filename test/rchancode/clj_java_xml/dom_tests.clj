@@ -184,6 +184,28 @@
     (is (= "C1" (text (?>1 "c" d))))
     ))
 
+(deftest nil-punning-to-avoid-NPE
+  (let [d (parse-text "<a><b>bb</b></a>")]
+    (is (nil? (text nil)))
+    (is (nil? (content nil)))
+    (is (nil? (element-of nil)))
+    (is (nil? (select-elements nil)))
+    (is (nil? (select-first-element nil)))
+    (is (nil? (select-elements nil nil)))
+    (is (nil? (select-first-element nil nil)))
+    (is (nil? (select-elements nil nil nil)))
+    (is (nil? (select-first-element nil nil nil)))
+    (is (nil? (NodeList-seq nil)))
+    (is (nil? (select nil nil)))
+    (is (nil? (select-first nil nil)))
+    (is (false? (xpath-true? nil nil)))
+    (is (nil? (attr nil nil)))
+    (is (nil? (attr nil nil nil)))
+    (is (nil? (select-attr nil nil)))
+    (is (nil? (select-attr nil nil nil)))
+    (is (nil? (tag nil)))))
+
+
 (deftest element-of-throws-IllegalArgumentException
   (is (thrown? IllegalArgumentException
               (element-of 1))))

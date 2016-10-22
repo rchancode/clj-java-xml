@@ -177,8 +177,8 @@
 
 (defn NodeList-seq
   [^NodeList node-list]
-  (NodeList-seq-n node-list 0))
-
+  (when node-list
+    (NodeList-seq-n node-list 0)))
 
 (defn- ^XPathExpression coerce-xpath [xpath-expression]
   (cond
@@ -191,27 +191,35 @@
 
 
 (defn select [xpath-expression e]
-  (let [^XPathExpression expr (coerce-xpath xpath-expression)
-        ^NodeList node-list (.evaluate expr e (XPathConstants/NODESET))]
-    (NodeList-seq node-list)))
+  (when xpath-expression
+    (when e
+      (let [^XPathExpression expr (coerce-xpath xpath-expression)
+            ^NodeList node-list (.evaluate expr e (XPathConstants/NODESET))]
+        (NodeList-seq node-list)))))
 
 
 (defn select-first [xpath-expression e]
-  (let [^XPathExpression expr (coerce-xpath xpath-expression)
-        ^Node node (.evaluate expr e (XPathConstants/NODE))]
-    node))
+  (when xpath-expression
+    (when e
+      (let [^XPathExpression expr (coerce-xpath xpath-expression)
+            ^Node node (.evaluate expr e (XPathConstants/NODE))]
+        node))))
 
 (defn xpath-true? [xpath-expression ^Document doc]
-  (let [^XPathExpression expr (coerce-xpath xpath-expression)]
-    (.evaluate expr doc (XPathConstants/BOOLEAN))))
+  (if (not-any? nil? [xpath-expression doc])
+    (let [^XPathExpression expr (coerce-xpath xpath-expression)]
+      (.evaluate expr doc (XPathConstants/BOOLEAN)))
+    false))
 
 (defn attr
   ([^Element element ^String name]
-   (when-let [item (.getNamedItem (.getAttributes element) name)]
-     (.getNodeValue item)))
+   (when element
+     (when-let [item (.getNamedItem (.getAttributes element) name)]
+       (.getNodeValue item))))
   ([^Element element ^String namespaceURI ^String name]
-   (when-let [item (.getNamedItemNS (.getAttributes element) namespaceURI name)]
-     (.getNodeValue item))))
+   (when element
+     (when-let [item (.getNamedItemNS (.getAttributes element) namespaceURI name)]
+       (.getNodeValue item)))))
 
 (defn select-attr
   ([^String name ^Element element]
@@ -220,7 +228,8 @@
    (attr element namespaceURI name)))
 
 (defn tag [^Element element]
-  (.getNodeName element))
+  (when element
+    (.getNodeName element)))
 
 (defmulti content class)
 
@@ -230,20 +239,27 @@
 (defmethod content Element [^Element element]
   (NodeList-seq (.getChildNodes element)))
 
+(defmethod content :default [d]
+  nil)
+
 (defn ^Element element-of [x]
   (cond
     (instance? Element x) x
     (instance? Document x) (.getDocumentElement ^Document x)
+    (nil? x) nil
     :else
     (throw (IllegalArgumentException. "x must be either an Element or a Document."))))
 
 (defn select-elements
   ([e]
-   (NodeList-seq (.getElementsByTagName (element-of e) "*")))
+   (when e
+     (NodeList-seq (.getElementsByTagName (element-of e) "*"))))
   ([^String tag e]
-   (NodeList-seq (.getElementsByTagName (element-of e) tag)))
+   (if (not-any? nil? [tag e])
+     (NodeList-seq (.getElementsByTagName (element-of e) tag))))
   ([^String namespace-uri ^String tag e]
-   (NodeList-seq (.getElementsByTagNameNS (element-of e) namespace-uri tag))))
+   (if (not-any? nil? [namespace-uri tag e])
+     (NodeList-seq (.getElementsByTagNameNS (element-of e) namespace-uri tag)))))
 
 (defn select-first-element
   ([e]
